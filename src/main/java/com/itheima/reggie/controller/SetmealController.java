@@ -148,8 +148,6 @@ public class SetmealController {
         return R.success("套餐删除成功");
     }
 
-
-    //SetmealController
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> lqw=new LambdaQueryWrapper<>();
