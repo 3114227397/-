@@ -149,4 +149,13 @@ public class SetmealController {
     }
 
 
+    //SetmealController
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal){
+        LambdaQueryWrapper<Setmeal> lqw=new LambdaQueryWrapper<>();
+        lqw.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
+        lqw.eq(setmeal.getStatus()==1,Setmeal::getStatus,1);
+        return R.success(setmealService.list(lqw));
+    }
+
 }

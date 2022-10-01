@@ -19,7 +19,7 @@ public class Orders implements Serializable {
     private Integer payMethod;//1微信。2支付宝
     private BigDecimal amount;
     private String remark;
-    private String username;
+    private String userName;
     private String phone;
     private String address;
     private String consignee;//收货人
