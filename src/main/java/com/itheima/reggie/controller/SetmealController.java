@@ -4,16 +4,16 @@ package com.itheima.reggie.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
-import com.itheima.reggie.entity.Category;
-import com.itheima.reggie.entity.Setmeal;
-import com.itheima.reggie.entity.SetmealDish;
-import com.itheima.reggie.entity.SetmealDto;
+import com.itheima.reggie.entity.*;
 import com.itheima.reggie.service.CategoryService;
+import com.itheima.reggie.service.DishService;
 import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/setmeal")
 public class SetmealController {
-
     @Autowired
     private SetmealService setmealService;
 
@@ -34,23 +33,27 @@ public class SetmealController {
     @Autowired
     private SetmealDishService setmealDishService;
 
+    @Autowired
+    private DishService dishService;
+
     /**
      * 套餐分页
+     *
      * @param page
      * @param pageSize
      * @param name
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, String name){
+    public R<Page> page(int page, int pageSize, String name) {
 
 
-        Page<Setmeal> page1=new Page<>(page,pageSize);
-        Page<SetmealDto> page2=new Page<>();
-        BeanUtils.copyProperties(page1,page2,"records");
+        Page<Setmeal> page1 = new Page<>(page, pageSize);
+        Page<SetmealDto> page2 = new Page<>();
+        BeanUtils.copyProperties(page1, page2, "records");
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         //添加查询条件，根据name进行like模糊查询
-        queryWrapper.like(name != null,Setmeal::getName,name);
+        queryWrapper.like(name != null, Setmeal::getName, name);
         //添加排序条件，根据更新时间降序排列
         queryWrapper.orderByDesc(Setmeal::getUpdateTime);
         setmealService.page(page1,queryWrapper);
@@ -78,6 +81,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto){
         setmealService.saveWithDish(setmealDto);
         return R.success("套餐添加成功");
@@ -107,6 +111,7 @@ public class SetmealController {
      * @return
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> update(@RequestBody SetmealDto setmealDto){
         setmealService.updateWithDish(setmealDto);
         return R.success("修改套餐成功");
@@ -143,19 +148,24 @@ public class SetmealController {
     }
 
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> delete(@RequestParam List<Long> ids){
         setmealService.removeAddDish(ids);
         return R.success("套餐删除成功");
     }
 
-
-    //SetmealController
     @GetMapping("/list")
-    public R<List<Setmeal>> list(Setmeal setmeal){
-        LambdaQueryWrapper<Setmeal> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
-        lqw.eq(setmeal.getStatus()==1,Setmeal::getStatus,1);
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId+'_'+ #setmeal.status")
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+        LambdaQueryWrapper<Setmeal> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId());
+        lqw.eq(setmeal.getStatus() == 1, Setmeal::getStatus, 1);
         return R.success(setmealService.list(lqw));
     }
 
+    @GetMapping("/dish/{id}")
+    public R<List<DishDto>> setmealDish(@PathVariable Long id) {
+        log.info("查询全部菜品:id:{}", id);
+        return R.success(dishService.getAll(id));
+    }
 }

@@ -8,5 +8,4 @@ public class BaseContext{
     public static Long getCurrentId(){
         return threadLocal.get();//这个线程对象的id。只有这么一个
     }
-
 }

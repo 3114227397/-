@@ -1,5 +1,4 @@
 package com.itheima.reggie.service.impl;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -75,11 +74,15 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         orders.setUserName(u.getName());
         orders.setConsignee(ab.getConsignee());
         orders.setPhone(ab.getPhone());
-        orders.setAddress(ab.getProvinceCode()==null?"":ab.getProvinceCode()
-                +(ab.getCityCode()==null?"":ab.getCityCode())
-                +(ab.getDistrictCode()==null?"":ab.getDistrictCode())
-                +(ab.getDetail()==null?"":ab.getDetail())
+        orders.setAddress((ab.getProvinceCode() == null ? "" : ab.getProvinceCode())
+                + (ab.getCityCode() == null ? "" : ab.getCityCode())
+                + (ab.getDistrictCode() == null ? "" : ab.getDistrictCode())
+                + (ab.getDetail() == null ? "" : ab.getDetail())
         );
+//        orders.setAddress((ab.getProvinceName() == null ? "" : ab.getProvinceName())
+//                + (ab.getCityName() == null ? "" : ab.getCityName())
+//                + (ab.getDistrictName() == null ? "" : ab.getDistrictName())
+//                + (ab.getDetail() == null ? "" : ab.getDetail()));
         this.save(orders);
         orderDetailService.saveBatch(orderDetails);
         shoppingCartService.remove(lqw_sc);

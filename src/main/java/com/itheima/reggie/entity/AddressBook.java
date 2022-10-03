@@ -9,13 +9,16 @@ import java.time.LocalDateTime;
 
 @Data
 public class AddressBook implements Serializable {
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
     private Long id;
     private Long userId;
     private String consignee;//收货人
     private String sex;//0:女生,1:男生
     private String phone;
     private String provinceCode;//省级邮政编码
+    private String provinceName;
+    private String cityName;
+    private String districtName;
     private String cityCode;//城市邮编
     private String districtCode;//区级邮编
     private String detail;//详细地址

@@ -53,6 +53,7 @@ public class UserController {
                 u=new User();
                 u.setPhone(phone);
                 u.setStatus(1);
+                u.setName("张三");
                 userService.save(u);
             }
             request.getSession().setAttribute("user",u.getId());//放进session
@@ -64,7 +65,12 @@ public class UserController {
 
 
         return R.error("登录失败");
+    }
 
+    @PostMapping("/loginout")
+    public R<String> logout(HttpServletRequest request) {
+        request.getSession().removeAttribute("user");
+        return R.success("退出成功");
     }
 
 }
